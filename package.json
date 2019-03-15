@@ -1,0 +1,31 @@
+{
+  "name": "gcf-helper",
+  "version": "0.1.0",
+  "description": "Google Cloud Functions Helper",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "repository": "git@github.com:google-cloud-tools/node-faas-helper.git",
+  "author": "Christian Froehlingsdorf <chris@5cf.de>",
+  "license": "SEE LICENSE IN ./LICENSE",
+  "private": false,
+  "scripts": {
+    "tsv": "tsc -v",
+    "prepublishOnly": "npm run build",
+    "build": "rm -rf dist/ && node_modules/.bin/tsc -p tsconfig.json",
+    "lint": "node_modules/.bin/tslint -c tslint.json -p tsconfig.json",
+    "fix": "node_modules/.bin/tslint -c tslint.json -p tsconfig.json --fix"
+  },
+  "keywords": [
+    "google",
+    "cloud",
+    "functions",
+    "helper"
+  ],
+  "dependencies": {
+  },
+  "devDependencies": {
+    "tslint": "~5.14.0",
+    "typescript": "~3.3.3333",
+    "@types/node": "^11.11.3"
+  }
+}

@@ -1,0 +1,17 @@
+lib/
+example/
+test/
+.editorconfig
+.gitignore
+tslint.json
+tsconfig.json
+scripts/
+*.tgz
+yarn-error.log
+index.ts
+Dockerfile
+CHANGELOG.md
+docker-compose.yml
+dockertest.sh
+bin/docker.json
+grafana.json
