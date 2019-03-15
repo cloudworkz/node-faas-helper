@@ -1,6 +1,6 @@
 {
   "name": "gcf-helper",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Google Cloud Functions Helper",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -22,10 +22,15 @@
     "helper"
   ],
   "dependencies": {
+    "uuid": "~3.3.2"
   },
   "devDependencies": {
+    "@types/node": "~11.11.3",
+    "@types/uuid": "~3.4.4",
     "tslint": "~5.14.0",
-    "typescript": "~3.3.3333",
-    "@types/node": "^11.11.3"
+    "typescript": "~3.3.3333"
+  },
+  "optionalDependencies": {
+    "@google-cloud/pubsub": "~0.28.1"
   }
 }
