@@ -10,3 +10,10 @@
 ```
 
 `npm install gcf-helper`
+
+
+[Documentation](DOC.md)
+
+
+Works best if you add [apifs-gateway](https://github.com/google-cloud-tools/node-faas-gateway)
+as gateway in front of your functions (in case you are using HTTP triggers).

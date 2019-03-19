@@ -1,21 +1,31 @@
+import { PubSub } from "@google-cloud/pubsub";
+import * as express from "express";
+
 import { FunctionOptions } from "./interfaces/FunctionOptions";
 import ErrorHandler from "./ErrorHandler";
-
-const DEFAULT_ERROR_CODE = "GCFError";
+import ConfigReader from "./ConfigReader";
 
 export default class GCFHelper {
 
     public readonly functionOptions: FunctionOptions;
     public readonly errorHandler: ErrorHandler;
 
-    constructor(functionOptions: FunctionOptions) {
-
-        if(!functionOptions.errorCode) {
-            functionOptions.errorCode = DEFAULT_ERROR_CODE;
-        }
-
-        this.functionOptions = functionOptions;
+    constructor(functionOptions: FunctionOptions | undefined | null) {
+        this.functionOptions = ConfigReader.adaptConfig(functionOptions || {});
         this.errorHandler = new ErrorHandler(this);
+        this.postInitialisation();
+    }
+
+    private postInitialisation() {
+
+        // check if we can cover the pubsub client instance automatically
+        if (this.functionOptions.errorTopic &&
+            !this.functionOptions.pubSubClient &&
+            this.functionOptions.projectId) {
+            this.functionOptions.pubSubClient = new PubSub({
+                projectId: this.functionOptions.projectId,
+            });
+        }
     }
 
     public async handleError(error: Error, eventPayload: any) {
@@ -23,7 +33,7 @@ export default class GCFHelper {
         const errorPayload = this.errorHandler.generateErrorPayload(error, eventPayload);
         const gcfError = this.errorHandler.generateErrorFromErrorPayload(errorPayload);
 
-        if(this.canPublish()) {
+        if (this.canPublish()) {
             await this.functionOptions.pubSubClient!
             .topic(this.functionOptions.errorTopic!)
             .publish(Buffer.from(JSON.stringify(errorPayload)));
@@ -32,7 +42,33 @@ export default class GCFHelper {
         throw gcfError;
     }
 
-    private canPublish(){
+    public async validateRequestAuthorization(request: express.Request): Promise<> {
+        
+    }
+
+    private isRequestAuthorizationValid(request: express.Request): number {
+
+        if (!this.functionOptions.apifsSecretHeader || !this.functionOptions.apifsSecretValue) {
+            return 0;
+        }
+
+        if (!request || !request.headers) {
+            return 1;
+        }
+
+        const header = request.headers[this.functionOptions.apifsSecretHeader];
+        if (!header) {
+            return 2;
+        }
+
+        if (header !== this.functionOptions.apifsSecretValue) {
+            return 3;
+        }
+
+        return 0;
+    }
+
+    private canPublish() {
         return this.functionOptions.pubSubClient && this.functionOptions.errorTopic;
     }
 }
