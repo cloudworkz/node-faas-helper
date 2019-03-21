@@ -50,6 +50,23 @@ export default class GCFHelper {
         // secret okay, continue
     }
 
+    public validateAPIFSRequestNoError(request: express.Request,
+                                       response?: express.Response): boolean {
+
+        const resultCode = this.isRequestAuthorizationValid(request);
+
+        if (resultCode !== 0) {
+            if (response) {
+                response.status(403).json({
+                    error: "APIFS secret is not provided or incorrect.",
+                });
+            }
+            return false;
+        }
+
+        return true;
+    }
+
     public async writeBigQueryRows(rows: any[],
                                    etl?: (row: any) => {[key: string]: any}, eventPayload?: any): Promise<void> {
 

@@ -77,6 +77,29 @@ exports.retrieve = async (req, res) => {
 };
 ```
 
+The call above will throw an exception and end your function if the secret is not provided or not correct.
+However you might want to handle the response yourself or you might simply do not want to throw errors
+when secrets are wrong. There is an alternative call for that:
+
+```javascript
+exports.retrieve = async (req, res) => {
+
+    if (!gcfHelper.validateAPIFSRequestNoError(req, res)) {
+        return;
+    }
+
+    try {
+        // do your stuff here
+    } catch (error) {
+        await gcfHelper.handleError(error, );
+    }
+};
+```
+
+If you pass a response to `validateAPIFSRequestNoError` it will be used to send back status 403 with a JSON error
+message, this parameter is optional. This function will return false if the secret is missing or invalid, please
+also note that it is not async.
+
 ### 4. Storing rows in BigQuery
 
 Make sure to set the following env variables in your function `DATASET_ID` and `TABLE_ID` and `PROJECT_ID` and `ERROR_TOPIC`.

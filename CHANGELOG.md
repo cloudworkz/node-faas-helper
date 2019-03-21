@@ -1,6 +1,6 @@
 # gcf-helper CHANGELOG
 
-## 2019-03-21, Version 0.4.0-0.6.0
+## 2019-03-21, Version 0.4.0-0.7.0
 
 * added lazy loading of pubsub client
 * added lazy loading of bigquery client
@@ -11,6 +11,7 @@
 * added documentation to describe helping options
 * skipping empty rows for bq
 * fixed missing return statements
+* added `validateAPIFSRequestNoError` to respond without exception
 
 ## 2019-03-19, Version 0.2.0-0.3.0
 
