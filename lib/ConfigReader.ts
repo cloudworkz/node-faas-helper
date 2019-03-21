@@ -40,6 +40,14 @@ export default class ConfigReader {
             functionOptions.errorTopic = ConfigReader.getEnvVar("ERROR_TOPIC");
         }
 
+        if (!functionOptions.bqDatasetId) {
+            functionOptions.bqDatasetId = ConfigReader.getEnvVar("DATASET_ID");
+        }
+
+        if (!functionOptions.bqTableId) {
+            functionOptions.bqTableId = ConfigReader.getEnvVar("TABLE_ID");
+        }
+
         return functionOptions;
     }
 }
