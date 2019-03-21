@@ -64,7 +64,7 @@ export default class GCFHelper {
                     .table(this.functionOptions.bqTableId!)
                     .insert(etl ? rows.map(etl) : rows);
             } catch (error) {
-                await this.handleError(error, eventPayload);
+                await this.handleError(error, eventPayload ? eventPayload : rows);
             }
         } else {
             // throw clean
@@ -104,8 +104,7 @@ export default class GCFHelper {
         if (this.functionOptions.errorTopic &&
             !this.functionOptions.pubSubClient &&
             this.functionOptions.projectId) {
-
-                import("@google-cloud/pubsub").then((packageImport) => {
+                return import("@google-cloud/pubsub").then((packageImport) => {
                     const { PubSub } = packageImport;
                     this.functionOptions.pubSubClient = new PubSub({
                         projectId: this.functionOptions.projectId,
@@ -124,11 +123,9 @@ export default class GCFHelper {
     private hasBigQueryClient(): Promise<boolean> {
 
         // check if we can cover the bigquery client instance automatically
-        if (this.functionOptions.errorTopic &&
-            !this.functionOptions.bigQueryClient &&
+        if (!this.functionOptions.bigQueryClient &&
             this.functionOptions.projectId) {
-
-                import("@google-cloud/bigquery").then((packageImport) => {
+                return import("@google-cloud/bigquery").then((packageImport) => {
                     const { BigQuery } = packageImport;
                     this.functionOptions.bigQueryClient = new BigQuery({
                         projectId: this.functionOptions.projectId,
