@@ -53,6 +53,10 @@ export default class GCFHelper {
     public async writeBigQueryRows(rows: any[],
                                    etl?: (row: any) => {[key: string]: any}, eventPayload?: any): Promise<void> {
 
+        if (!rows || !rows.length) {
+            return;
+        }
+
         if (await this.hasBigQueryClient() && this.canWriteToBigQuery()) {
             try {
                 await this.functionOptions.bigQueryClient!

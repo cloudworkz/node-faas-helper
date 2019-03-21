@@ -1,6 +1,6 @@
 # gcf-helper CHANGELOG
 
-## 2019-03-21, Version 0.4.0
+## 2019-03-21, Version 0.4.0-0.5.0
 
 * added lazy loading of pubsub client
 * added lazy loading of bigquery client
@@ -9,6 +9,7 @@
 * added `setup` export for ease of use
 * added unit test
 * added documentation to describe helping options
+* skipping empty rows for bq
 
 ## 2019-03-19, Version 0.2.0-0.3.0
 
