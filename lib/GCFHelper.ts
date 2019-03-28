@@ -139,13 +139,12 @@ export default class GCFHelper {
 
     if ((await this.hasSqlPool()) && this.functionOptions.sqlPool) {
       try {
-        return await this.functionOptions.sqlPool!.query({
+        return this.functionOptions.sqlPool!.query({
           text: queryString,
           values: params,
         });
       } catch (error) {
-        await this.handleError(error);
-        return null;
+        return this.handleError(error);
       }
     } else {
       // throw clean
