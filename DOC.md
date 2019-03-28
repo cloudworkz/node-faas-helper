@@ -150,7 +150,7 @@ exports.store = async (event, _) => {
 };
 ```
 
-### 5. Using cloud sql
+### 6. Using cloud sql
 
 Make sure to set the following env variables in your function `SQL_CONNECTION_NAME` and `SQL_DATABASE_NAME` and `SQL_USERNAME` and `SQL_PASSWORD`.
 
@@ -161,6 +161,6 @@ exports.store = async (event, _) => {
 };
 ```
 
-### 6. Using KMS
+### 7. Using KMS
 
 Make sure to set the following env variables in your function `PROJECT_ID` and `KMS_ENABLED` and `LOCATION_ID` and `KEYRING_ID` and `CRYPTOKEY_ID`.
