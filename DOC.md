@@ -156,7 +156,7 @@ Make sure to set the following env variables in your function `SQL_CONNECTION_NA
 
 ```javascript
 exports.store = async (event, _) => {
-  gcfHelper.sqlQuery("SELECT $1::text as message", ["Hello world!"]);
+  await gcfHelper.sqlQuery("SELECT $1::text as message", ["Hello world!"]);
   // do something
 };
 ```
