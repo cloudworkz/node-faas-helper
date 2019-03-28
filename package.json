@@ -14,8 +14,9 @@
     "build": "rm -rf dist/ && node_modules/.bin/tsc -p tsconfig.json",
     "lint": "node_modules/.bin/tslint -c tslint.json -p tsconfig.json",
     "fix": "node_modules/.bin/tslint -c tslint.json -p tsconfig.json --fix",
-    "test:only": "APIFS_SECRET=123123123 PROJECT_ID=test_project _mocha -R spec --exit --timeout 1000 './test/**/*.js'",
-    "test": "npm run build && npm run test:only"
+    "test:only": "APIFS_SECRET=123123123 PROJECT_ID=test_project TS_NODE_PROJECT='tsconfig.test.json' _mocha",
+    "test": "npm run test:only",
+    "upgrade-interactive": "npm-check --update"
   },
   "keywords": [
     "google",
@@ -30,17 +31,38 @@
     "bootstrap"
   ],
   "dependencies": {
-    "@google-cloud/bigquery": "^2.1.0",
-    "@google-cloud/pubsub": "^0.28.1",
-    "express": "^4.16.4",
     "uuid": "~3.3.2"
   },
   "devDependencies": {
+    "@google-cloud/bigquery": "^2.1.0",
+    "@google-cloud/kms": "^0.4.0",
+    "@google-cloud/pubsub": "^0.28.1",
+    "@types/chai": "^4.1.7",
+    "@types/chai-as-promised": "^7.1.0",
     "@types/express": "^4.16.1",
+    "@types/google-cloud__kms": "^0.2.0",
+    "@types/mocha": "^5.2.6",
     "@types/node": "~11.11.3",
+    "@types/pg": "^7.4.14",
     "@types/uuid": "~3.4.4",
+    "chai": "^4.2.0",
+    "chai-as-promised": "^7.1.1",
+    "express": "^4.16.4",
     "mocha": "^6.0.2",
+    "npm-check": "^5.9.0",
+    "pg": "^7.9.0",
+    "ts-node": "^8.0.3",
     "tslint": "~5.14.0",
     "typescript": "~3.3.3333"
+  },
+  "peerDependencies": {
+    "@google-cloud/bigquery": "^2.1.0",
+    "@google-cloud/kms": "^0.4.0",
+    "@google-cloud/pubsub": "^0.28.1",
+    "@types/express": "^4.16.1",
+    "@types/google-cloud__kms": "^0.2.0",
+    "@types/pg": "^7.4.14",
+    "express": "^4.16.4",
+    "pg": "^7.9.0"
   }
 }
