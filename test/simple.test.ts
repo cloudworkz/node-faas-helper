@@ -5,8 +5,6 @@ import ConfigReader from "../lib/ConfigReader";
 chai.use(chaiAsPromised);
 const { expect } = chai;
 
-chai.use(chaiAsPromised);
-
 const publishedMessages = [];
 const fakePubSubClient: any = {
   topic: (topic: string) => {

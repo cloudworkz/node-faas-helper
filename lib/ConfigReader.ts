@@ -99,7 +99,8 @@ export default class ConfigReader {
     }
 
     if (!functionOptions.kmsEnabled) {
-      functionOptions.kmsEnabled = DEFAULT_KMS_ENABLED;
+      functionOptions.kmsEnabled =
+        ConfigReader.getEnvVar("KMS_ENABLED") === "true" || DEFAULT_KMS_ENABLED;
     }
     await this.loadKmsClient(functionOptions);
 

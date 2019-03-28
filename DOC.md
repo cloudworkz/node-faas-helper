@@ -4,13 +4,23 @@
 
 These "auto-fill" the `functionOptions` that have to be passed to `GCFHelper`.
 
-1. `APIFS_SECRET_HEADER` default is => `apifs-secret`
-2. `APIFS_SECRET` default is => `undefined`
-3. `FUNCTION_ID` default is => `undefined`
-4. `PROJECT_ID` default is => `undefined`
-5. `ERROR_TOPIC` default is => `undefined`
-6. `DATASET_ID` default is => `undefined`, BigQuery Dataset
-7. `TABLE_ID` default is => `undefined`, BigQuery Table
+| Environment Variable | Default        | Description                             | Auto-decrypt |
+| -------------------- | -------------- | --------------------------------------- | ------------ |
+| APIFS_SECRET_HEADER  | `apifs-secret` | Auth header                             | ❌           |
+| APIFS_SECRET         | `undefined`    | Auth Secret                             | ✅           |
+| FUNCTION_ID          | `undefined`    | Cloud Function ID                       | ❌           |
+| PROJECT_ID           | `undefined`    | Google Project ID                       | ❌           |
+| ERROR_TOPIC          | `undefined`    | PubSub Error Topic                      | ❌           |
+| DATASET_ID           | `undefined`    | BigQuery Dataset                        | ❌           |
+| TABLE_ID             | `undefined`    | BigQuery Table                          | ❌           |
+| KMS_ENABLED          | `false`        | Use Google Cloud KMS to decrypt secrets | ❌           |
+| LOCATION_ID          | `undefined`    | Google Cloud KMS location               | ❌           |
+| KEYRING_ID           | `undefined`    | Google Cloud KMS Keyring ID             | ❌           |
+| CRYPTOKEY_ID         | `undefined`    | Google Cloud KMS Cryptokey ID           | ❌           |
+| SQL_CONNECTION_NAME  | `undefined`    | Cloud SQL Instance Connection Name      | ❌           |
+| SQL_DATABASE_NAME    | `undefined`    | Cloud SQL Database Name                 | ❌           |
+| SQL_USERNAME         | `undefined`    | Cloud SQL Database Username             | ❌           |
+| SQL_PASSWORD         | `undefined`    | Cloud SQL Database Password             | ✅           |
 
 ## Using the lib to improve your cloud functions
 
@@ -31,11 +41,14 @@ Make sure to set the following env variables in your function `PROJECT_ID` and `
 
 ```javascript
 exports.store = async (event, _) => {
-    try {
-        // stuff you do in your function
-    } catch (error) {
-        await gcfHelper.handleError(error, event.data /* you can pass any kind of additional payload here, optional */);
-    }
+  try {
+    // stuff you do in your function
+  } catch (error) {
+    await gcfHelper.handleError(
+      error,
+      event.data /* you can pass any kind of additional payload here, optional */
+    );
+  }
 };
 ```
 
@@ -48,11 +61,11 @@ The error payload looks like this:
 
 ```javascript
 export interface ErrorPayload {
-    error_id: string;
-    function_id: string;
-    error_message: string;
-    payload: string;
-    error_occured_at: number;
+  error_id: string;
+  function_id: string;
+  error_message: string;
+  payload: string;
+  error_occured_at: number;
 }
 ```
 
@@ -68,12 +81,15 @@ result in a throw loop.
 
 ```javascript
 exports.retrieve = async (req, res) => {
-    await gcfHelper.validateAPIFSRequest(req, null /* you can pass any kind of additional payload here, optional */);
-    try {
-        // do your stuff here
-    } catch (error) {
-        await gcfHelper.handleError(error, );
-    }
+  await gcfHelper.validateAPIFSRequest(
+    req,
+    null /* you can pass any kind of additional payload here, optional */
+  );
+  try {
+    // do your stuff here
+  } catch (error) {
+    await gcfHelper.handleError(error);
+  }
 };
 ```
 
@@ -83,16 +99,15 @@ when secrets are wrong. There is an alternative call for that:
 
 ```javascript
 exports.retrieve = async (req, res) => {
+  if (!gcfHelper.validateAPIFSRequestNoError(req, res)) {
+    return;
+  }
 
-    if (!gcfHelper.validateAPIFSRequestNoError(req, res)) {
-        return;
-    }
-
-    try {
-        // do your stuff here
-    } catch (error) {
-        await gcfHelper.handleError(error, );
-    }
+  try {
+    // do your stuff here
+  } catch (error) {
+    await gcfHelper.handleError(error);
+  }
 };
 ```
 
@@ -108,15 +123,18 @@ or bad row schemas.
 
 ```javascript
 exports.store = async (event, _) => {
+  const rows = event.data; // turn data into rows..
 
-    const rows = event.data; // turn data into rows..
+  // some optional etl magic that is applied to every row before insert
+  const etl = row => {
+    return { ...row, additional_column: Date.now() };
+  };
 
-    // some optional etl magic that is applied to every row before insert
-    const etl = (row) => {
-        return { ...row, additional_column: Date.now() };
-    };
-
-    await gcfHelper.writeBigQueryRows(rows, etl, null /* you can pass any kind of additional payload here, optional */);
+  await gcfHelper.writeBigQueryRows(
+    rows,
+    etl,
+    null /* you can pass any kind of additional payload here, optional */
+  );
 };
 ```
 
@@ -127,7 +145,22 @@ Requires no env variables.
 
 ```javascript
 exports.store = async (event, _) => {
-    const parsed = gcfHelper.getPubSubDataFromEvent(event);
-    // do something
+  const parsed = gcfHelper.getPubSubDataFromEvent(event);
+  // do something
 };
 ```
+
+### 5. Using cloud sql
+
+Make sure to set the following env variables in your function `SQL_CONNECTION_NAME` and `SQL_DATABASE_NAME` and `SQL_USERNAME` and `SQL_PASSWORD`.
+
+```javascript
+exports.store = async (event, _) => {
+  gcfHelper.sqlQuery("SELECT $1::text as message", ["Hello world!"]);
+  // do something
+};
+```
+
+### 5. Using KMS
+
+Make sure to set the following env variables in your function `PROJECT_ID` and `KMS_ENABLED` and `LOCATION_ID` and `KEYRING_ID` and `CRYPTOKEY_ID`.

@@ -14,7 +14,7 @@ export default class GCFHelper {
     this.errorHandler = new ErrorHandler(this);
   }
 
-  private async loadConfig() {
+  private async ensureConfigAdapted() {
     if (!this.configLoaded) {
       this.functionOptions = await ConfigReader.adaptConfig(
         this.functionOptions,
@@ -24,7 +24,7 @@ export default class GCFHelper {
   }
 
   public async handleError(error: Error, eventPayload?: any) {
-    await this.loadConfig();
+    await this.ensureConfigAdapted();
     // prevent people from putting thrown errors back into this lib
     // because that will end in endless error handling loops and pubsub messages
     if (this.errorHandler.isGCFHelperError(error)) {
@@ -57,7 +57,7 @@ export default class GCFHelper {
     request: express.Request,
     eventPayload?: any,
   ): Promise<void> {
-    await this.loadConfig();
+    await this.ensureConfigAdapted();
     const resultCode = this.isRequestAuthorizationValid(request);
     if (resultCode !== 0) {
       await this.handleError(
@@ -73,7 +73,7 @@ export default class GCFHelper {
     request: express.Request,
     response?: express.Response,
   ): Promise<boolean> {
-    await this.loadConfig();
+    await this.ensureConfigAdapted();
     const resultCode = this.isRequestAuthorizationValid(request);
 
     if (resultCode !== 0) {
@@ -93,7 +93,7 @@ export default class GCFHelper {
     etl?: (row: any) => { [key: string]: any },
     eventPayload?: any,
   ): Promise<void> {
-    await this.loadConfig();
+    await this.ensureConfigAdapted();
     if (!rows || !rows.length) {
       return;
     }
@@ -134,20 +134,15 @@ export default class GCFHelper {
     }
   }
 
-  public async sqlQuery(queryString: string) {
-    await this.loadConfig();
+  public async sqlQuery(queryString: string, params?: any[]) {
+    await this.ensureConfigAdapted();
 
-    if (!this.functionOptions.sqlPool) {
+    if ((await this.hasSqlPool()) && this.functionOptions.sqlPool) {
       try {
-        await new Promise((resolve, reject) =>
-          this.functionOptions.sqlPool!.query(queryString, (err, results) => {
-            if (err) {
-              reject(err);
-            } else {
-              resolve(results);
-            }
-          }),
-        );
+        await this.functionOptions.sqlPool!.query({
+          text: queryString,
+          values: params,
+        });
       } catch (error) {
         await this.handleError(error);
       }
@@ -213,7 +208,7 @@ export default class GCFHelper {
   }
 
   private hasSqlPool(): Promise<boolean> {
-    // check if we can cover the bigquery client instance automatically
+    // check if we can cover the sql client instance automatically
     if (
       !this.functionOptions.sqlPool &&
       this.functionOptions.sqlConnectionName &&
