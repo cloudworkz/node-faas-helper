@@ -161,6 +161,6 @@ exports.store = async (event, _) => {
 };
 ```
 
-### 5. Using KMS
+### 6. Using KMS
 
 Make sure to set the following env variables in your function `PROJECT_ID` and `KMS_ENABLED` and `LOCATION_ID` and `KEYRING_ID` and `CRYPTOKEY_ID`.
