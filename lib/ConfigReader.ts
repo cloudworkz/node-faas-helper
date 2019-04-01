@@ -62,10 +62,9 @@ export default class ConfigReader {
       functionOptions.keyRingId,
       functionOptions.cryptoKeyId,
     );
-    const ciphertextBase64 = new Buffer(ciphertext).toString("base64");
     const [result] = await functionOptions.kmsClient.decrypt({
       name,
-      ciphertext: ciphertextBase64,
+      ciphertext,
     });
 
     return result.plaintext.toString();
