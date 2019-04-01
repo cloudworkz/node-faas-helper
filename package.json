@@ -1,6 +1,6 @@
 {
   "name": "gcf-helper",
-  "version": "0.8.1",
+  "version": "0.8.3",
   "description": "Google Cloud Functions Helper",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

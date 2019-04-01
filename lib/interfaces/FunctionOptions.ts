@@ -1,11 +1,6 @@
-import { PubSub } from "@google-cloud/pubsub";
-import { BigQuery } from "@google-cloud/bigquery";
-import { KeyManagementServiceClient } from "@google-cloud/kms";
-import { Pool } from "pg";
-
 export interface FunctionOptions {
   kmsEnabled?: boolean;
-  kmsClient?: KeyManagementServiceClient;
+  kmsClient?: any;
   locationId?: string;
   keyRingId?: string;
   cryptoKeyId?: string;
@@ -14,18 +9,18 @@ export interface FunctionOptions {
   errorCode?: string;
   projectId?: string;
 
-  pubSubClient?: PubSub;
+  pubSubClient?: any;
   errorTopic?: string;
 
   correlationId?: string;
   apifsSecretHeader?: string;
   apifsSecretValue?: string;
 
-  bigQueryClient?: BigQuery;
+  bigQueryClient?: any;
   bqDatasetId?: string;
   bqTableId?: string;
 
-  sqlPool?: Pool;
+  sqlPool?: any;
   sqlConnectionName?: string;
   sqlDatabaseName?: string;
   sqlPassword?: string;
