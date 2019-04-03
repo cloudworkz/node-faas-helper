@@ -150,7 +150,7 @@ export default class ConfigReader {
     }
 
     if (!functionOptions.sqlPassword) {
-      functionOptions.sqlUsername = await this.decrypt(
+      functionOptions.sqlPassword = await this.decrypt(
         functionOptions,
         ConfigReader.getEnvVar("SQL_PASSWORD"),
       );
