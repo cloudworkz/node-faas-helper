@@ -26,4 +26,8 @@ export interface FunctionOptions {
   sqlPassword?: string;
   sqlUsername?: string;
   sqlMaxConnections?: number;
+
+  disableMetrics?: boolean;
+  metricsTopic?: string;
+  metricsFlushTimeoutMs?: number;
 }

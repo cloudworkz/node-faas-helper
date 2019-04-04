@@ -5,6 +5,7 @@ const DEFAULT_CORRELATION_ID_HEADER = "correlation-id";
 const DEFAULT_SECRET_HEADER = "apifs-secret";
 const DEFAULT_KMS_ENABLED = false;
 const DEFAULT_SQL_MAX_CONNECTIONS = 1;
+const DEFAULT_METRICS_FLUSH_TIMEOUT = 150;
 
 export default class ConfigReader {
   private static getEnvVar(key: string): string | undefined {
@@ -163,6 +164,24 @@ export default class ConfigReader {
           parseInt(maxConnections, 10) || DEFAULT_SQL_MAX_CONNECTIONS;
       } else {
         functionOptions.sqlMaxConnections = DEFAULT_SQL_MAX_CONNECTIONS;
+      }
+    }
+
+    if (!functionOptions.metricsTopic) {
+      functionOptions.metricsTopic = ConfigReader.getEnvVar("METRICS_TOPIC");
+    }
+
+    if (typeof functionOptions.disableMetrics === "undefined") {
+      functionOptions.disableMetrics = ConfigReader.getEnvVar("DISABLE_METRICS") === "1";
+    }
+
+    if (!functionOptions.metricsFlushTimeoutMs) {
+      const flushTimeoutMs = ConfigReader.getEnvVar("METRICS_FLUSH_TIMEOUT");
+      if (flushTimeoutMs && !isNaN(parseInt(flushTimeoutMs, 10))) {
+        functionOptions.metricsFlushTimeoutMs =
+          parseInt(flushTimeoutMs, 10) || DEFAULT_METRICS_FLUSH_TIMEOUT;
+      } else {
+        functionOptions.metricsFlushTimeoutMs = DEFAULT_SQL_MAX_CONNECTIONS;
       }
     }
 

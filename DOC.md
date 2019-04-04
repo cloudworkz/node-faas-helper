@@ -21,6 +21,9 @@ These "auto-fill" the `functionOptions` that have to be passed to `GCFHelper`.
 | SQL_DATABASE_NAME    | `undefined`    | Cloud SQL Database Name                 | ❌           |
 | SQL_USERNAME         | `undefined`    | Cloud SQL Database Username             | ❌           |
 | SQL_PASSWORD         | `undefined`    | Cloud SQL Database Password             | ✅           |
+| METRICS_TOPIC         | `undefined`    | PubSub Metrics Topic                   | ❌           |
+| DISABLE_METRICS       | `undefined`    | If metric calls should be ignored      | ❌           |
+| METRICS_FLUSH_TIMEOUT | `150`          | ms of time to batch before publishing  | ❌           |
 
 ## Using the lib to improve your cloud functions
 
@@ -164,3 +167,7 @@ exports.store = async (event, _) => {
 ### 7. Using KMS
 
 Make sure to set the following env variables in your function `PROJECT_ID` and `KMS_ENABLED` and `LOCATION_ID` and `KEYRING_ID` and `CRYPTOKEY_ID`.
+
+### 8. Create custom metrics
+
+WIP
