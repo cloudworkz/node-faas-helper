@@ -222,6 +222,8 @@ export default class GCFHelper {
           const { Pool } = packageImport;
           const pgConfig: any = {
             max: this.functionOptions.sqlMaxConnections,
+            connectionTimeoutMillis: 4500,
+            idleTimeoutMillis: 4500,
             user: this.functionOptions.sqlUsername,
             password: this.functionOptions.sqlPassword,
             database: this.functionOptions.sqlDatabaseName,
