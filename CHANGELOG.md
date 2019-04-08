@@ -1,6 +1,11 @@
 # gcf-helper CHANGELOG
 
-## 2019-03-21, Version 0.4.0-0.7.0
+## 2019-04-08, Version 0.9.0
+
+* added optional parameter to define table in bigquery write method
+* added metrics functionality in roach-storm formatting
+
+## 2019-03-21, Version 0.4.0-0.8.0
 
 * added lazy loading of pubsub client
 * added lazy loading of bigquery client

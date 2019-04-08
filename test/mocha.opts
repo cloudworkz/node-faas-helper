@@ -2,4 +2,4 @@
 --exit
 --reporter spec
 --timeout 1000
-test/**/*.ts
+test/**/*.js

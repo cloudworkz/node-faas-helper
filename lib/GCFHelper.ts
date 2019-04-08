@@ -3,24 +3,26 @@ import * as express from "express";
 import { FunctionOptions } from "./interfaces/FunctionOptions";
 import ErrorHandler from "./ErrorHandler";
 import ConfigReader from "./ConfigReader";
+import MetricsHandler from "./MetricsHandler";
 
 export default class GCFHelper {
+
   public functionOptions: FunctionOptions;
+  private readonly metricsHandler: MetricsHandler;
   private readonly errorHandler: ErrorHandler;
   private configLoaded = false;
 
   constructor(functionOptions: FunctionOptions | undefined | null) {
     this.functionOptions = functionOptions || {};
     this.errorHandler = new ErrorHandler(this);
+    this.metricsHandler = new MetricsHandler(this);
   }
 
-  private async ensureConfigAdapted() {
-    if (!this.configLoaded) {
-      this.functionOptions = await ConfigReader.adaptConfig(
-        this.functionOptions,
-      );
-      this.configLoaded = true;
-    }
+  /**
+   * used for tests, is automatically handled otherwise
+   */
+  public parseConfig() {
+    return this.ensureConfigAdapted();
   }
 
   public async handleError(error: Error, eventPayload?: any) {
@@ -92,6 +94,7 @@ export default class GCFHelper {
     rows: any[],
     etl?: (row: any) => { [key: string]: any },
     eventPayload?: any,
+    datasetName?: string,
     tableName?: string,
   ): Promise<void> {
     await this.ensureConfigAdapted();
@@ -100,10 +103,11 @@ export default class GCFHelper {
     }
 
     if ((await this.hasBigQueryClient()) && this.canWriteToBigQuery()) {
+      const targetDataset = datasetName ? datasetName : this.functionOptions.bqDatasetId!;
       const targetTable = tableName ? tableName : this.functionOptions.bqTableId!;
       try {
         await this.functionOptions
-          .bigQueryClient!.dataset(this.functionOptions.bqDatasetId!)
+          .bigQueryClient!.dataset(targetDataset)
           .table(targetTable)
           .insert(etl ? rows.map(etl) : rows);
       } catch (error) {
@@ -156,8 +160,42 @@ export default class GCFHelper {
     }
   }
 
+  public async metricsIncCounter(metricName: string, value: number = 1,
+                                 labels: { [labelName: string]: string } = {}) {
+
+    if (this.functionOptions.disableMetrics) {
+      return false;
+    }
+
+    if (!await this.ensureMetricsReady()) {
+      throw new Error("Metrics are not ready, make sure pubsub is configured and a topic var is present.");
+    }
+
+    this.metricsHandler.increment(metricName, value, labels);
+    return true;
+  }
+
+  public async metricsSetGauge(metricName: string, value: number = 0,
+                               labels: { [labelName: string]: string } = {}) {
+
+    if (this.functionOptions.disableMetrics) {
+      return false;
+    }
+
+    if (!await this.ensureMetricsReady()) {
+      throw new Error("Metrics are not ready, make sure pubsub is configured and a topic var is present.");
+    }
+
+    this.metricsHandler.set(metricName, value, labels);
+    return true;
+  }
+
   public getConfig() {
     return this.functionOptions;
+  }
+
+  public kill() {
+    this.metricsHandler.kill();
   }
 
   private hasPubSubClient(): Promise<boolean> {
@@ -274,7 +312,11 @@ export default class GCFHelper {
   }
 
   private canPublish() {
-    return this.functionOptions.pubSubClient && this.functionOptions.errorTopic;
+    return !!this.functionOptions.pubSubClient && !!this.functionOptions.errorTopic;
+  }
+
+  private canPublishMetrics() {
+    return !!this.functionOptions.pubSubClient && !!this.functionOptions.metricsTopic;
   }
 
   private canWriteToBigQuery() {
@@ -283,5 +325,19 @@ export default class GCFHelper {
       this.functionOptions.bqDatasetId &&
       this.functionOptions.bqTableId
     );
+  }
+
+  private async ensureConfigAdapted() {
+    if (!this.configLoaded) {
+      this.functionOptions = await ConfigReader.adaptConfig(
+        this.functionOptions,
+      );
+      this.configLoaded = true;
+    }
+  }
+
+  private async ensureMetricsReady(): Promise<boolean> {
+    await this.ensureConfigAdapted();
+    return (await this.hasPubSubClient()) && this.canPublishMetrics();
   }
 }

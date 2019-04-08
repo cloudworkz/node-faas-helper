@@ -6,6 +6,7 @@
     "jsRules": {},
     "rules": {
       "no-reference": false,
+      "no-console": false,
       "variable-name": [
         true,
         "ban-keywords",

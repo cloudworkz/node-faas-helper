@@ -23,7 +23,7 @@ These "auto-fill" the `functionOptions` that have to be passed to `GCFHelper`.
 | SQL_PASSWORD         | `undefined`    | Cloud SQL Database Password             | ✅           |
 | METRICS_TOPIC         | `undefined`    | PubSub Metrics Topic                   | ❌           |
 | DISABLE_METRICS       | `undefined`    | If metric calls should be ignored      | ❌           |
-| METRICS_FLUSH_TIMEOUT | `150`          | ms of time to batch before publishing  | ❌           |
+| METRICS_FLUSH_TIMEOUT | `100`          | ms of time to batch before publishing  | ❌           |
 
 ## Using the lib to improve your cloud functions
 
@@ -136,7 +136,9 @@ exports.store = async (event, _) => {
   await gcfHelper.writeBigQueryRows(
     rows,
     etl,
-    null /* you can pass any kind of additional payload here, optional */
+    null, /* you can pass any kind of additional payload here, optional */
+    undefined, /* you can pass an optional dataset name here, else DATASET_ID will be used */
+    undefined, /* you can pass an optional table name here, else TABLE_ID will be used */
   );
 };
 ```
@@ -167,7 +169,36 @@ exports.store = async (event, _) => {
 ### 7. Using KMS
 
 Make sure to set the following env variables in your function `PROJECT_ID` and `KMS_ENABLED` and `LOCATION_ID` and `KEYRING_ID` and `CRYPTOKEY_ID`.
+If you enable KMS certain environment variables will automatically be decrypted, check the table at the top of this file.
 
-### 8. Create custom metrics
+### 8. Creating custom metrics (Google Cloud Functions to Prometheus/Grafana)
 
-WIP
+Make sure to set the following env variables in your function `PROJECT_ID` and `METRICS_TOPIC`.
+
+When using [RoachStorm](https://github.com/nodefluent/roach-storm) to handle Prometheus metrics from pubsub subscriptions,
+you can use the following helper methods to create custom metrics (counters, gauges) in your functions.
+
+Metrics are batched internally by default, to decrease the amount of pubsub events as well as traffic that is required.
+You can controll the buffer flush timeout via `METRICS_FLUSH_TIMEOUT`. If you set it to null, 0 or -1 every metric
+is immediately published to the pubsub topic.
+
+```javascript
+exports.store = async (event, _) => {
+  // do something
+  await gcfHelper.metricsIncCounter("my_counter", 1, { someLabel: "labelValue" });
+  await gcfHelper.metricsSetGauge("my_gauge", 55, { someLabel: "labelValue" });
+  // do something
+};
+```
+
+### 9. Kill any running (currently awaited) operation to end function
+
+In case you should need this, which you should not.
+You can use this method to end any running operation.
+
+```javascript
+exports.store = async (event, _) => {
+  // do something
+  gcfHelper.kill();
+};
+```

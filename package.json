@@ -1,6 +1,6 @@
 {
   "name": "gcf-helper",
-  "version": "0.8.6",
+  "version": "0.9.0",
   "description": "Google Cloud Functions Helper",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -14,7 +14,7 @@
     "build": "rm -rf dist/ && node_modules/.bin/tsc -p tsconfig.json",
     "lint": "node_modules/.bin/tslint -c tslint.json -p tsconfig.json",
     "fix": "node_modules/.bin/tslint -c tslint.json -p tsconfig.json --fix",
-    "test:only": "APIFS_SECRET=123123123 PROJECT_ID=test_project TS_NODE_PROJECT='tsconfig.test.json' _mocha",
+    "test:only": "TS_NODE_PROJECT='tsconfig.test.json' _mocha",
     "test": "npm run test:only",
     "upgrade-interactive": "npm-check --update"
   },
@@ -28,7 +28,13 @@
     "error",
     "faas",
     "framework",
-    "bootstrap"
+    "bootstrap",
+    "prometheus",
+    "metrics",
+    "roachstorm",
+    "pubsub",
+    "kms",
+    "sql"
   ],
   "dependencies": {
     "uuid": "~3.3.2"

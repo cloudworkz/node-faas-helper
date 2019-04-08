@@ -5,7 +5,7 @@ const DEFAULT_CORRELATION_ID_HEADER = "correlation-id";
 const DEFAULT_SECRET_HEADER = "apifs-secret";
 const DEFAULT_KMS_ENABLED = false;
 const DEFAULT_SQL_MAX_CONNECTIONS = 1;
-const DEFAULT_METRICS_FLUSH_TIMEOUT = 150;
+const DEFAULT_METRICS_FLUSH_TIMEOUT = 100;
 
 export default class ConfigReader {
   private static getEnvVar(key: string): string | undefined {
