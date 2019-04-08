@@ -92,6 +92,7 @@ export default class GCFHelper {
     rows: any[],
     etl?: (row: any) => { [key: string]: any },
     eventPayload?: any,
+    tableName?: string,
   ): Promise<void> {
     await this.ensureConfigAdapted();
     if (!rows || !rows.length) {
@@ -99,10 +100,11 @@ export default class GCFHelper {
     }
 
     if ((await this.hasBigQueryClient()) && this.canWriteToBigQuery()) {
+      const targetTable: string = tableName ? tableName : this.functionOptions.bqTableId!;
       try {
         await this.functionOptions
           .bigQueryClient!.dataset(this.functionOptions.bqDatasetId!)
-          .table(this.functionOptions.bqTableId!)
+          .table(targetTable)
           .insert(etl ? rows.map(etl) : rows);
       } catch (error) {
         await this.handleError(error, eventPayload ? eventPayload : rows);
