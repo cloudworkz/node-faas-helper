@@ -100,7 +100,7 @@ export default class GCFHelper {
     }
 
     if ((await this.hasBigQueryClient()) && this.canWriteToBigQuery()) {
-      const targetTable: string = tableName ? tableName : this.functionOptions.bqTableId!;
+      const targetTable = tableName ? tableName : this.functionOptions.bqTableId!;
       try {
         await this.functionOptions
           .bigQueryClient!.dataset(this.functionOptions.bqDatasetId!)
