@@ -102,7 +102,7 @@ export default class GCFHelper {
       return;
     }
 
-    if ((await this.hasBigQueryClient()) && this.canWriteToBigQuery()) {
+    if ((await this.hasBigQueryClient()) && this.canWriteToBigQuery(tableName)) {
       const targetDataset = datasetName ? datasetName : this.functionOptions.bqDatasetId!;
       const targetTable = tableName ? tableName : this.functionOptions.bqTableId!;
       try {
@@ -116,7 +116,8 @@ export default class GCFHelper {
     } else {
       // throw clean
       throw new Error(
-        "Cannot write to big query, because preconditions are missing to setup the client.",
+        "Cannot write to big query, because preconditions are missing to setup the client or " +
+        "a table name is not given.",
       );
     }
   }
@@ -271,7 +272,7 @@ export default class GCFHelper {
           if (process.env.NODE_ENV === "production") {
             pgConfig.host = `/cloudsql/${
               this.functionOptions.sqlConnectionName
-            }`;
+              }`;
           }
           this.functionOptions.sqlPool = new Pool(pgConfig);
           return true;
@@ -319,11 +320,11 @@ export default class GCFHelper {
     return !!this.functionOptions.pubSubClient && !!this.functionOptions.metricsTopic;
   }
 
-  private canWriteToBigQuery() {
+  private canWriteToBigQuery(tableName?: string) {
     return (
       this.functionOptions.bigQueryClient &&
       this.functionOptions.bqDatasetId &&
-      this.functionOptions.bqTableId
+      (tableName || this.functionOptions.bqTableId)
     );
   }
 
