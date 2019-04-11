@@ -102,7 +102,7 @@ export default class GCFHelper {
       return;
     }
 
-    if ((await this.hasBigQueryClient()) && this.canWriteToBigQuery(tableName)) {
+    if ((await this.hasBigQueryClient()) && this.canWriteToBigQuery(datasetName, tableName)) {
       const targetDataset = datasetName ? datasetName : this.functionOptions.bqDatasetId!;
       const targetTable = tableName ? tableName : this.functionOptions.bqTableId!;
       try {
@@ -117,7 +117,7 @@ export default class GCFHelper {
       // throw clean
       throw new Error(
         "Cannot write to big query, because preconditions are missing to setup the client or " +
-        "a table name is not given.",
+        "a table/dataset name is not given.",
       );
     }
   }
@@ -320,10 +320,10 @@ export default class GCFHelper {
     return !!this.functionOptions.pubSubClient && !!this.functionOptions.metricsTopic;
   }
 
-  private canWriteToBigQuery(tableName?: string) {
+  private canWriteToBigQuery(datasetName?: string, tableName?: string) {
     return (
       this.functionOptions.bigQueryClient &&
-      this.functionOptions.bqDatasetId &&
+      (datasetName || this.functionOptions.bqDatasetId) &&
       (tableName || this.functionOptions.bqTableId)
     );
   }
